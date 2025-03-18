@@ -8,17 +8,33 @@ import { campingSchema } from '@/utils/schemas'
 import Buttons from '@/components/form/Buttons'
 import CategoryInput from '@/components/form/CategoryInput'
 import Mainmap from '@/components/map/Mainmap'
+import { createCamping } from '@/api/camping'
 
+//clerk
+import { useAuth } from '@clerk/clerk-react'
+import FormUploadImage from '@/components/form/FormUploadImage'
+import { createAlert } from '@/utils/createAlert'
 
 const Camping = () => {
-    const { register, handleSubmit, formState, setValue } = useForm({ resolver: zodResolver(campingSchema) })
+    const { register, handleSubmit, formState, setValue, reset } = useForm({ resolver: zodResolver(campingSchema) })
     const { errors, isSubmitting } = formState
-
+    const { getToken, userId } = useAuth()
     console.log(isSubmitting)
 
     const handleSubmitData = async (data) => {
-        await new Promise((resolve) => setTimeout(resolve,3000))
+        await new Promise((resolve) => setTimeout(resolve, 1000))
         console.log(data)
+        const token = await getToken()
+        createCamping(token, data)
+            .then((res) => {
+                console.log(res.data)
+                reset()
+                createAlert("success", "Create Landmark Success!!")
+            })
+            .catch((err) => {
+                console.log(err)
+                createAlert("error", err.message)
+            })
     }
 
     return (
@@ -51,10 +67,15 @@ const Camping = () => {
                             errors={errors}
                         />
 
-                        <CategoryInput name="category" register={register} setValue={setValue} />
+                        <div className='relative z-50'>
+                            <CategoryInput name="category" register={register} setValue={setValue} />
+                            <FormUploadImage setValue={setValue} />
+                        </div>
                     </div>
 
-                    <Mainmap register={register} setValue={setValue} />
+                    <div className='relative z-10'>
+                        <Mainmap register={register} setValue={setValue} />
+                    </div>
 
                     <Buttons text="create camping" isPending={isSubmitting} type="submit" />
                 </form>

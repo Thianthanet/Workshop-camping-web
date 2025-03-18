@@ -9,7 +9,7 @@ const Navbar = () => {
             <div className='flex flex-col items-center py-8 justify-between sm:flex-row'>
                 <Logo />
                 <Searchbar />
-                <DropdownListMenu />
+                <DropdownListMenu className="relative z-50" />
             </div>
         </nav>
     )
